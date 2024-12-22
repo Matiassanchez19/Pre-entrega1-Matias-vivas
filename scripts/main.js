@@ -1,81 +1,89 @@
-console.log
-
 function calcularPrecio() {
-    // Definir los precios de las entradas
-    const precios = {
-        general: { sabado: 5, domingo: 7 },
-        platea: { sabado: 12, domingo: 15 },
-        vip: { sabado: 23, domingo: 25 },
-        boxes: { sabado: 50, domingo: 60 }
-    };
+    // Definir precios usando un array de objetos
+    const precios = [
+        { ubicacion: "general", sabado: 5, domingo: 7 },
+        { ubicacion: "platea", sabado: 12, domingo: 15 },
+        { ubicacion: "vip", sabado: 23, domingo: 25 },
+        { ubicacion: "boxes", sabado: 50, domingo: 60 }
+    ];
 
-    // Definir los precios de estacionamiento
-    const estacionamiento = { sabado: 10, domingo: 12 };
+    // Precios del estacionamiento en un objeto
+    const preciosEstacionamiento = { sabado: 10, domingo: 12 };
 
-    let continuar = true; // Variable de control para el ciclo
+    let continuar = true; 
 
-    while (continuar) {
-        // Solicitar la ubicación
-        const ubicacion = prompt("Selecciona una ubicación (general, platea, vip, boxes):");
-        
+    // Funcion para buscar los precios de entrada segun la ubicacion
+    function buscarPrecioPorUbicacion(ubicacion) {
+        return precios.find((entrada) => entrada.ubicacion === ubicacion);
+    }
 
-        // Validar la ubicación
-        if (!precios[ubicacion]) {
-            alert("Ubicación no válida. Por favor, selecciona entre general, platea, vip o boxes.");
-            continue; // Reiniciar el ciclo si la ubicación no es válida
-        } 
+    // 4. Funcion para calcular el precio total
+    function calcularPrecioTotal(ubicacion, dia, necesitaEstacionamiento) {
+        const entrada = buscarPrecioPorUbicacion(ubicacion);
+        if (!entrada) {
+            return null;
+        }
 
-        // Solicitar el día
-        const dia = prompt("Selecciona el día (sabado, domingo o sabado y domingo):").toLowerCase();
+        let precioEntrada = 0; 
+        let precioEstacionamiento = 0; 
 
-        // Inicializar el precio total
-        let precioTotal = 0;
-
-        // Calcular el precio de la entrada según el día
+        // Calcular el precio segun el dia
         if (dia === "sabado") {
-            precioTotal = precios[ubicacion].sabado;
+            precioEntrada = entrada.sabado;
+            if (necesitaEstacionamiento) {
+                precioEstacionamiento = preciosEstacionamiento.sabado;
+            }
         } else if (dia === "domingo") {
-            precioTotal = precios[ubicacion].domingo;
+            precioEntrada = entrada.domingo;
+            if (necesitaEstacionamiento) {
+                precioEstacionamiento = preciosEstacionamiento.domingo;
+            }
         } else if (dia === "sabado y domingo") {
-            precioTotal = precios[ubicacion].sabado + precios[ubicacion].domingo;
-        } else {
-            alert("Día no válido. Por favor, selecciona sabado, domingo o sabado y domingo.");
-            continue; // Reiniciar el ciclo si el día no es válido
+            precioEntrada = entrada.sabado + entrada.domingo;
+            if (necesitaEstacionamiento) {
+                precioEstacionamiento = preciosEstacionamiento.sabado + preciosEstacionamiento.domingo;
+            }
+        }
+
+        // Sumar el precio de la entrada y del estacionamiento
+        return precioEntrada + precioEstacionamiento;
+    }
+
+    // Iniciar el ciclo principal
+    while (continuar) {
+        const ubicacion = prompt("Selecciona una ubicacion (general, platea, vip, boxes):").toLowerCase();
+        if (!buscarPrecioPorUbicacion(ubicacion)) {
+            alert("Ubicacion no valida. Intenta de nuevo.");
+            continue; 
+        }
+
+        
+        const dia = prompt("Selecciona el dia (sabado, domingo o sabado y domingo):").toLowerCase();
+
+        // Validar si el dia es correcto
+        if (!["sabado", "domingo", "sabado y domingo"].includes(dia)) {
+            alert("Dia no valido. Intenta de nuevo.");
+            continue; // Reiniciar el ciclo si el dia no es valido
         }
 
         // Preguntar si necesita estacionamiento
-        const necesitaEstacionamiento = prompt("¿Necesitas estacionamiento? (si o no):").toLowerCase();
+        const necesitaEstacionamiento = prompt("¿Necesitas estacionamiento? (si o no):").toLowerCase() === "si";
 
-        // Inicializar el precio del estacionamiento
-        let precioEstacionamiento = 0;
+        // Calcular el precio total
+        const precioTotal = calcularPrecioTotal(ubicacion, dia, necesitaEstacionamiento);
 
-        if (necesitaEstacionamiento === "si") {
-            // Calcular el precio del estacionamiento según el día
-            if (dia === "sabado") {
-                precioEstacionamiento = estacionamiento.sabado;
-            } else if (dia === "domingo") {
-                precioEstacionamiento = estacionamiento.domingo;
-            } else if (dia === "sabado y domingo") {
-                precioEstacionamiento = estacionamiento.sabado + estacionamiento.domingo;
-            }
+        // Mostrar el precio al usuario
+        alert(
+            `El precio para la ubicacion ${ubicacion.toUpperCase()} el día ${dia.toUpperCase()} es: ${precioTotal} USD.` +
+            (necesitaEstacionamiento ? " (Incluye estacionamiento)" : "")
+        );
 
-            // Sumar el precio del estacionamiento al precio total
-            precioTotal += precioEstacionamiento;
-        }
-
-        // Mostrar el resultado final
-        if (precioEstacionamiento > 0) {
-            alert(`El precio para el sector ${ubicacion.toUpperCase()} el día ${dia.toUpperCase()} es: ${precioTotal} USD (incluye estacionamiento).`);
-        } else {
-            alert(`El precio para el sector ${ubicacion.toUpperCase()} el día ${dia.toUpperCase()} es: ${precioTotal} USD.`);
-        }
-
-        // Preguntar si desea realizar otra consulta
-        const respuesta = prompt("¿Deseas consultar otra entrada? (si o no):").toLowerCase();
+        // Preguntamos si quieren hacer otra consulta
+        const respuesta = prompt("¿desea consultar otra entrada? (si o no):").toLowerCase();
         if (respuesta !== "si") {
             continuar = false; // Salir del ciclo si el usuario no desea continuar
         }
     }
 
-    alert("Gracias por realizar la consulta de precio.");
+    alert("Gracias por realizar la consulta de precios.");
 }
